@@ -1,4 +1,5 @@
-name: ${name}
+name: |-
+  ${indent(2, name)}
 dataset_query:
   native:
     query: |
@@ -10,14 +11,17 @@ dataset_query:
         name: ${variable.name}
         type: ${variable.type}
         required: ${variable.required}
-        display_name: ${variable.display_name}
-        display-name: ${variable.display_name}
+        display_name: |-
+          ${indent(10, variable.display_name)}
+        display-name: |-
+          ${indent(10, variable.display_name)}
         default: ${variable.default}
       %{ endfor }
   type: native
   database: ${database_id}
 display: table
-description: ${description}
+description: |-
+  ${indent(2, description)}
 visualization_settings: {}
 collection_id: ${collection_id}
 result_metadata:

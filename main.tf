@@ -1,6 +1,11 @@
 resource "restapi_object" "collection" {
-  path = "/collection"
-  data = jsonencode(var.metabase_collection)
+  count = var.metabase_collection_id != "" ? 0 : 1
+  path  = "/collection"
+  data  = jsonencode(var.metabase_collection)
+}
+
+locals {
+  metabase_collection_id = var.metabase_collection_id != "" ? var.metabase_collection_id : "${restapi_object.collection[0].api_data.id}"
 }
 
 resource "random_uuid" "variable-uuid" {
@@ -17,7 +22,7 @@ resource "restapi_object" "cards" {
         merge(
           {
             variable_uuid = random_uuid.variable-uuid[count.index].result,
-            collection_id = restapi_object.collection.api_data.id
+            collection_id = local.metabase_collection_id
           },
           var.metabase_cards[count.index]
         )

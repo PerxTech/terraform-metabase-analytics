@@ -7,6 +7,12 @@ variable "metabase_collection" {
   })
 }
 
+variable "metabase_collection_id" {
+  type        = string
+  description = "[Optional] Existing metabase collection to add the cards into"
+  default     = ""
+}
+
 variable "metabase_cards" {
   description = "A list of cards to add into the metabase collection"
   type = list(object({

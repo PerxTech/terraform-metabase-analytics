@@ -15,18 +15,35 @@ resource "random_uuid" "variable-uuid" {
 resource "restapi_object" "cards" {
   count = length(var.metabase_cards)
   path  = "/card"
-  data = jsonencode(
-    yamldecode(
-      templatefile(
-        "${path.module}/templates/card.yaml.tpl",
-        merge(
-          {
-            variable_uuid = random_uuid.variable-uuid[count.index].result,
-            collection_id = local.metabase_collection_id
-          },
-          var.metabase_cards[count.index]
-        )
-      )
-    )
-  )
+  data = jsonencode({
+    name = var.metabase_cards[count.index].name
+    dataset_query = {
+      native = {
+        query = var.metabase_cards[count.index].native_query
+        template-tags = {
+          for index, variable in var.metabase_cards[count.index].variables :
+          variable.name => {
+            id           = "${substr(random_uuid.variable-uuid[count.index].result, 0, 35)}${format("%02d", index)}"
+            name         = variable.name
+            type         = variable.type
+            required     = variable.required
+            display_name = variable.display_name
+            display-name = variable.display_name
+            default      = variable.default
+          }
+        }
+      }
+      type     = "native"
+      database = tonumber(var.metabase_cards[count.index].database_id)
+    }
+    display                = "table"
+    description            = var.metabase_cards[count.index].description
+    collection_id          = tonumber(local.metabase_collection_id)
+    visualization_settings = lookup(var.metabase_cards[count.index], "visualization_settings", {})
+    embedding_params = {
+      for variable in var.metabase_cards[count.index].variables :
+      variable.name => variable.embedding_param
+    }
+    enable_embedding = var.metabase_cards[count.index].enable_embedding
+  })
 }

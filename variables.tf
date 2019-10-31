@@ -20,12 +20,13 @@ variable "metabase_cards" {
     description  = string
     native_query = string # native query for the card
     variables = list(object({
-      name            = string # name of the variable
-      display_name    = string # display name of the variable
-      type            = string # type of variable, can be date, text
-      required        = bool
-      embedding_param = string # "enabled", "disabled" or "locked"
-      default         = string
+      name                   = string # name of the variable
+      display_name           = string # display name of the variable
+      type                   = string # type of variable, can be date, text
+      required               = bool
+      embedding_param        = string # "enabled", "disabled" or "locked"
+      default                = string
+      # visualization_settings = any
     }))
     database_id      = number # database ID for the query
     enable_embedding = bool

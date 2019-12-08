@@ -9,21 +9,22 @@ locals {
 }
 
 resource "random_uuid" "variable-uuid" {
-  count = length(var.metabase_cards)
+  for_each = var.metabase_cards
 }
 
 resource "restapi_object" "cards" {
-  count = length(var.metabase_cards)
-  path  = "/card"
+  for_each = var.metabase_cards
+
+  path     = "/card"
   data = jsonencode({
-    name = var.metabase_cards[count.index].name
+    name = each.value.name
     dataset_query = {
       native = {
-        query = var.metabase_cards[count.index].native_query
+        query = each.value.native_query
         template-tags = {
-          for index, variable in var.metabase_cards[count.index].variables :
+          for index, variable in each.value.variables :
           variable.name => {
-            id           = "${substr(random_uuid.variable-uuid[count.index].result, 0, 35)}${format("%02d", index)}"
+            id           = "${substr(random_uuid.variable-uuid[each.key].result, 0, 35)}${format("%02d", index)}"
             name         = variable.name
             type         = variable.type
             required     = variable.required
@@ -34,16 +35,16 @@ resource "restapi_object" "cards" {
         }
       }
       type     = "native"
-      database = tonumber(var.metabase_cards[count.index].database_id)
+      database = tonumber(each.value.database_id)
     }
     display                = "table"
-    description            = var.metabase_cards[count.index].description
+    description            = each.value.description
     collection_id          = tonumber(local.metabase_collection_id)
-    visualization_settings = lookup(var.metabase_cards[count.index], "visualization_settings", {})
+    visualization_settings = lookup(each.value, "visualization_settings", {})
     embedding_params = {
-      for variable in var.metabase_cards[count.index].variables :
+      for variable in each.value.variables :
       variable.name => variable.embedding_param
     }
-    enable_embedding = var.metabase_cards[count.index].enable_embedding
+    enable_embedding = each.value.enable_embedding
   })
 }

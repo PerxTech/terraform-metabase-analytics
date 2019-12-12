@@ -6,6 +6,7 @@ resource "restapi_object" "collection" {
 
 locals {
   metabase_collection_id = var.metabase_collection_id != "" ? var.metabase_collection_id : "${restapi_object.collection[0].api_data.id}"
+  # metabase_collection_id = var.metabase_collection_id
 }
 
 resource "random_uuid" "variable-uuid" {
